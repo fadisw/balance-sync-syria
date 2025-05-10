@@ -107,14 +107,14 @@ const TransactionsFilter: React.FC<TransactionsFilterProps> = ({
           <div className="flex items-center">
             <Label className="ml-2">الموظف:</Label>
             <Select
-              value={selectedEmployee || ''}
-              onValueChange={(value) => onEmployeeChange(value || null)}
+              value={selectedEmployee || 'all'}
+              onValueChange={(value) => onEmployeeChange(value === 'all' ? null : value)}
             >
               <SelectTrigger className={`w-[180px] ${selectedEmployee ? 'bg-blue-50' : ''}`}>
                 <SelectValue placeholder="جميع الموظفين" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">الكل</SelectItem>
+                <SelectItem value="all">الكل</SelectItem>
                 {employees.map((employee) => (
                   <SelectItem key={employee.id} value={employee.id}>
                     {employee.name}
