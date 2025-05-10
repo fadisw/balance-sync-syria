@@ -25,12 +25,14 @@ interface TransactionsHistoryTableProps {
   transactions: EmployeeTransaction[];
   employees: Employee[];
   onAddTransaction: () => void;
+  onEmployeeSelect: (employeeId: string) => void;
 }
 
 const TransactionsHistoryTable: React.FC<TransactionsHistoryTableProps> = ({
   transactions,
   employees,
   onAddTransaction,
+  onEmployeeSelect,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -107,11 +109,8 @@ const TransactionsHistoryTable: React.FC<TransactionsHistoryTableProps> = ({
 
   return (
     <Card className="animate-fade-in mt-6">
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg flex justify-between items-center flex-row">
-        <CardTitle className="text-xl md:text-2xl">سجل المعاملات</CardTitle>
-        <Button onClick={onAddTransaction} size="sm" className="bg-white text-purple-700 hover:bg-gray-100">
-          <Plus className="w-4 h-4 ml-1" /> إضافة معاملة
-        </Button>
+      <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-t-lg">
+        <CardTitle className="text-xl md:text-2xl text-center">سجل المعاملات</CardTitle>
       </CardHeader>
       <CardContent className="p-0 overflow-auto">
         <Table dir="rtl">
@@ -122,6 +121,7 @@ const TransactionsHistoryTable: React.FC<TransactionsHistoryTableProps> = ({
               <TableHead className="text-right font-bold">النوع</TableHead>
               <TableHead className="text-right font-bold">المبلغ</TableHead>
               <TableHead className="text-right font-bold">الوصف</TableHead>
+              <TableHead className="text-center font-bold">الإجراءات</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -143,11 +143,21 @@ const TransactionsHistoryTable: React.FC<TransactionsHistoryTableProps> = ({
                   </TableCell>
                   <TableCell className="font-medium">{transaction.amount.toLocaleString()}</TableCell>
                   <TableCell>{transaction.description || '-'}</TableCell>
+                  <TableCell className="text-center">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => onEmployeeSelect(transaction.employeeId)}
+                      className="hover:bg-blue-100 text-blue-700"
+                    >
+                      تفاصيل الموظف
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                   لا توجد معاملات مسجلة
                 </TableCell>
               </TableRow>
