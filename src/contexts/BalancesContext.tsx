@@ -50,6 +50,8 @@ interface BalancesContextType {
   calculateTotals: () => void;
   saveData: () => void;
   loadData: () => void;
+  setEmployees: (employees: Employee[]) => void;
+  setTransactions: (transactions: EmployeeTransaction[]) => void;
 }
 
 const DEFAULT_EMPLOYEES: Employee[] = [
@@ -131,7 +133,8 @@ export const BalancesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         openingBalance,
         salesEntries,
         remainingBalances,
-        transactions
+        transactions,
+        employees
       };
       localStorage.setItem('dailyBalancesData', JSON.stringify(dataToSave));
       console.log('Data saved successfully');
@@ -149,6 +152,9 @@ export const BalancesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         setSalesEntries(parsedData.salesEntries);
         setRemainingBalances(parsedData.remainingBalances);
         setTransactions(parsedData.transactions);
+        if (parsedData.employees) {
+          setEmployees(parsedData.employees);
+        }
         console.log('Data loaded successfully');
       }
     } catch (error) {
@@ -169,7 +175,9 @@ export const BalancesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateSalesEntry,
         calculateTotals,
         saveData,
-        loadData
+        loadData,
+        setEmployees,
+        setTransactions
       }}
     >
       {children}
