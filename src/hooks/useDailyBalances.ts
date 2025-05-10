@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { useBalances } from '../contexts/BalancesContext';
 import { toast } from '@/hooks/use-toast';
@@ -17,6 +16,8 @@ export const useDailyBalances = () => {
     calculateTotals,
     saveData,
     loadData,
+    exportData,
+    importData,
     setEmployees,
     setTransactions
   } = useBalances();
@@ -131,6 +132,54 @@ export const useDailyBalances = () => {
     }
   };
 
+  const exportDataWithFeedback = (filename?: string) => {
+    try {
+      exportData(filename);
+      toast({
+        title: "تم تصدير البيانات",
+        description: "تم حفظ البيانات بنجاح على جهازك",
+      });
+      return true;
+    } catch (error) {
+      console.error("Error exporting data:", error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء تصدير البيانات",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
+  const importDataWithFeedback = async (file: File): Promise<boolean> => {
+    try {
+      const result = await importData(file);
+      
+      if (result) {
+        toast({
+          title: "تم استيراد البيانات",
+          description: "تم استيراد البيانات بنجاح وتحديث النظام",
+        });
+        return true;
+      } else {
+        toast({
+          title: "خطأ",
+          description: "صيغة الملف غير صحيحة أو البيانات غير مكتملة",
+          variant: "destructive",
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error("Error importing data:", error);
+      toast({
+        title: "خطأ",
+        description: "حدث خطأ أثناء استيراد البيانات",
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   return {
     openingBalance,
     salesEntries,
@@ -143,6 +192,8 @@ export const useDailyBalances = () => {
     setNextDayOpeningBalance,
     saveData,
     loadData,
+    exportData: exportDataWithFeedback,
+    importData: importDataWithFeedback,
     addNewEmployee,
     addNewTransaction
   };

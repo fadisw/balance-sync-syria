@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { exportToJsonFile, importFromJsonFile } from '@/lib/fileExport';
 
 export interface Employee {
   id: string;
@@ -50,6 +50,8 @@ interface BalancesContextType {
   calculateTotals: () => void;
   saveData: () => void;
   loadData: () => void;
+  exportData: (filename?: string) => void;
+  importData: (file: File) => Promise<boolean>;
   setEmployees: (employees: Employee[]) => void;
   setTransactions: (transactions: EmployeeTransaction[]) => void;
 }
@@ -143,6 +145,60 @@ export const BalancesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
+  const exportData = (filename?: string) => {
+    try {
+      const dataToExport = {
+        date: new Date().toISOString().split('T')[0],
+        openingBalance,
+        salesEntries,
+        remainingBalances,
+        salesByType,
+        transactions,
+        employees
+      };
+      
+      // Default filename includes the current date
+      const defaultFilename = `mtnsyr-data-${new Date().toISOString().split('T')[0]}`;
+      exportToJsonFile(dataToExport, filename || defaultFilename);
+    } catch (error) {
+      console.error('Error exporting data', error);
+    }
+  };
+
+  const importData = async (file: File): Promise<boolean> => {
+    try {
+      const importedData = await importFromJsonFile(file);
+      
+      // Validate the imported data structure
+      if (!importedData || 
+          !importedData.openingBalance || 
+          !importedData.salesEntries || 
+          !importedData.transactions || 
+          !importedData.employees) {
+        console.error('Invalid data format in imported file');
+        return false;
+      }
+      
+      // Set all the imported data states
+      setOpeningBalance(importedData.openingBalance);
+      setSalesEntries(importedData.salesEntries);
+      if (importedData.remainingBalances) {
+        setRemainingBalances(importedData.remainingBalances);
+      }
+      setTransactions(importedData.transactions);
+      setEmployees(importedData.employees);
+      
+      // Calculate totals based on the imported data
+      calculateTotals();
+      
+      console.log('Data imported successfully');
+      return true;
+    } catch (error) {
+      console.error('Error importing data', error);
+      return false;
+    }
+  };
+
   const loadData = () => {
     try {
       const savedData = localStorage.getItem('dailyBalancesData');
@@ -176,6 +232,8 @@ export const BalancesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         calculateTotals,
         saveData,
         loadData,
+        exportData,
+        importData,
         setEmployees,
         setTransactions
       }}

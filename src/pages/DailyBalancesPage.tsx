@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import OpeningBalanceSection from '@/components/OpeningBalanceSection';
 import DailySummary from '@/components/DailySummary';
@@ -6,12 +5,13 @@ import DistributorAccountDetails from '@/components/DistributorAccountDetails';
 import TransactionsHistoryTable from '@/components/TransactionsHistoryTable';
 import AddEmployeeDialog from '@/components/AddEmployeeDialog';
 import AddTransactionDialog from '@/components/AddTransactionDialog';
+import ImportDataDialog from '@/components/ImportDataDialog';
 import TransactionsFilter from '@/components/TransactionsFilter';
 import { BalancesProvider, useBalances } from '@/contexts/BalancesContext';
 import { useDailyBalances } from '@/hooks/useDailyBalances';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, ChevronDown } from 'lucide-react';
+import { Plus, FileText, ChevronDown, Download, Upload } from 'lucide-react';
 import {
   Tabs,
   TabsContent,
@@ -34,6 +34,8 @@ const DailyBalancesContent = () => {
     setNextDayOpeningBalance,
     setOpeningBalance,
     saveData,
+    exportData,
+    importData,
     addNewEmployee,
     addNewTransaction
   } = useDailyBalances();
@@ -42,6 +44,7 @@ const DailyBalancesContent = () => {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isAddEmployeeOpen, setIsAddEmployeeOpen] = useState(false);
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
+  const [isImportDataOpen, setIsImportDataOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedEmployeeFilter, setSelectedEmployeeFilter] = useState<string | null>(null);
   const [selectedTypes, setSelectedTypes] = useState<('syriaTel' | 'mtn' | 'cash')[]>([]);
@@ -131,6 +134,24 @@ const DailyBalancesContent = () => {
         
         {/* تبويب الأرصدة والملخص */}
         <TabsContent value="balances" className="space-y-6">
+          <div className="flex justify-end mb-4 gap-2">
+            <Button 
+              onClick={() => setIsImportDataOpen(true)} 
+              variant="outline" 
+              className="bg-white hover:bg-gray-100 border-green-500 text-green-600"
+            >
+              <Upload className="w-4 h-4 ml-2" /> استيراد البيانات
+            </Button>
+            
+            <Button 
+              onClick={() => exportData()} 
+              variant="outline" 
+              className="bg-white hover:bg-gray-100 border-blue-500 text-blue-600"
+            >
+              <Download className="w-4 h-4 ml-2" /> تصدير البيانات
+            </Button>
+          </div>
+          
           <OpeningBalanceSection 
             openingBalance={openingBalance}
             onChange={handleOpeningBalanceChange}
@@ -154,6 +175,24 @@ const DailyBalancesContent = () => {
               </Button>
               <Button onClick={() => setIsAddEmployeeOpen(true)} variant="outline" className="bg-white">
                 <Plus className="w-4 h-4 ml-1" /> إضافة موظف جديد
+              </Button>
+            </div>
+            
+            <div className="space-x-2 flex">
+              <Button 
+                onClick={() => setIsImportDataOpen(true)} 
+                variant="outline" 
+                className="bg-white hover:bg-gray-100 border-green-500 text-green-600"
+              >
+                <Upload className="w-4 h-4 ml-2" /> استيراد
+              </Button>
+              
+              <Button 
+                onClick={() => exportData(`mtnsyr-transactions-${new Date().toISOString().split('T')[0]}`)} 
+                variant="outline" 
+                className="bg-white hover:bg-gray-100 border-blue-500 text-blue-600"
+              >
+                <Download className="w-4 h-4 ml-2" /> تصدير
               </Button>
             </div>
           </div>
@@ -196,6 +235,12 @@ const DailyBalancesContent = () => {
         onOpenChange={setIsAddTransactionOpen}
         employees={employees}
         onAddTransaction={handleAddTransaction}
+      />
+      
+      <ImportDataDialog
+        open={isImportDataOpen}
+        onOpenChange={setIsImportDataOpen}
+        onImportData={importData}
       />
     </div>
   );
